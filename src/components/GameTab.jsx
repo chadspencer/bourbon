@@ -47,7 +47,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   function calcPrices(bottle, two) {
     const b = inventory.find(x => x.bottle === bottle)
     if (!b) return { p1: '', p2: '' }
-    const base = Math.round(b.paid / 10)
+    const base = Math.round(b.value / 10)
     return two
       ? { p1: String(Math.round(base * 1.3)), p2: String(base) }
       : { p1: String(base), p2: '' }
@@ -126,9 +126,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   function startGame() {
     const bottles = mode === 'single'
       ? [selectedBottle]
-      : mode === 'multi'
-        ? multiBottles.filter(Boolean)
-        : [selectedBottle]
+      : multiBottles.filter(Boolean)
 
     const count = mode === 'ducks' ? duckCount : 10
     const list = Array.from({ length: count }, (_, i) => `${i}.`).join('\n')
@@ -184,9 +182,11 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     })
   }
 
-  const canStart = mode === 'single' || mode === 'ducks'
-    ? selectedBottle && (mode === 'ducks' || price1)
-    : multiBottles.filter(Boolean).length >= 2 && price1
+  const canStart = mode === 'single'
+    ? selectedBottle && price1
+    : mode === 'ducks'
+      ? multiBottles.filter(Boolean).length >= 1
+      : multiBottles.filter(Boolean).length >= 2 && price1
 
   // ── List view ──────────────────────────────────────────────────
   if (view === 'list') {
@@ -232,7 +232,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
         <div className={styles.modeGrid}>
           <ModeCard onClick={() => handleModeSelect('single')} icon="🔥" label="Fireball Single" sub="1 bottle · 10 spots" />
           <ModeCard onClick={() => handleModeSelect('multi')} icon="🔥" label="Fireball Multi" sub="4 bottles · 10 spots" />
-          <ModeCard onClick={() => handleModeSelect('ducks')} icon="🦆" label="Duck Race" sub="1 bottle · custom spots" wide />
+          <ModeCard onClick={() => handleModeSelect('ducks')} icon="🦆" label="Duck Race" sub="multi bottle · custom spots" wide />
         </div>
       </div>
     )
@@ -249,9 +249,19 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
         </div>
 
         {/* Bottle selection */}
-        {mode === 'multi' ? (
+        {mode === 'single' ? (
           <div className={styles.field}>
-            <Label>Select 4 Bottles</Label>
+            <Label>Select Bottle</Label>
+            <Select value={selectedBottle} onChange={e => handleBottleSelect(e.target.value)}>
+              <option value="">— Choose —</option>
+              {available.map(b => (
+                <option key={b.id} value={b.bottle}>{bottleLabel(b)} (qty: {b.quantity})</option>
+              ))}
+            </Select>
+          </div>
+        ) : (
+          <div className={styles.field}>
+            <Label>{mode === 'ducks' ? 'Select Bottles' : 'Select 4 Bottles'}</Label>
             {[0, 1, 2, 3].map(i => (
               <Select
                 key={i}
@@ -265,16 +275,6 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
                 ))}
               </Select>
             ))}
-          </div>
-        ) : (
-          <div className={styles.field}>
-            <Label>Select Bottle</Label>
-            <Select value={selectedBottle} onChange={e => handleBottleSelect(e.target.value)}>
-              <option value="">— Choose —</option>
-              {available.map(b => (
-                <option key={b.id} value={b.bottle}>{bottleLabel(b)} (qty: {b.quantity})</option>
-              ))}
-            </Select>
           </div>
         )}
 
