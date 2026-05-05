@@ -128,12 +128,50 @@
   gap: 12px;
 }
 
-/* Ducks */
-.ducksRow {
+/* Duck race dynamic slots */
+.duckSlotRow {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.duckSlotRow select {
+  flex: 1;
+}
+
+.removeSlotBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--cream-dim);
+  border-radius: 8px;
+  padding: 0 10px;
+  height: 44px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.removeSlotBtn:hover {
+  border-color: var(--border-hot);
+  color: var(--cream);
+}
+
+.addSlotBtn {
+  background: none;
+  border: none;
+  color: var(--cream-dim);
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+
+.addSlotBtn:hover {
+  color: var(--amber);
 }
 
 /* Active game */

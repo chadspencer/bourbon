@@ -22,6 +22,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   const [price2, setPrice2] = useState('')
   const [template, setTemplate] = useState('')
   const [duckCount, setDuckCount] = useState(10)
+  const [duckSlotCount, setDuckSlotCount] = useState(1)
   const [duckList, setDuckList] = useState('')
   const [soldFor, setSoldFor] = useState('')
   const [copied, setCopied] = useState('')
@@ -71,7 +72,16 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     setPrice2('')
     setTwoPrice(false)
     setDuckCount(10)
+    setDuckSlotCount(1)
     setView('setup')
+  }
+
+  function removeDuckSlot(idx) {
+    const updated = [...multiBottles]
+    updated.splice(idx, 1)
+    updated.push('')
+    setMultiBottles(updated)
+    setDuckSlotCount(c => c - 1)
   }
 
   function handleBottleSelect(bottle) {
@@ -259,9 +269,9 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
               ))}
             </Select>
           </div>
-        ) : (
+        ) : mode === 'multi' ? (
           <div className={styles.field}>
-            <Label>{mode === 'ducks' ? 'Select Bottles' : 'Select 4 Bottles'}</Label>
+            <Label>Select 4 Bottles</Label>
             {[0, 1, 2, 3].map(i => (
               <Select
                 key={i}
@@ -275,6 +285,31 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
                 ))}
               </Select>
             ))}
+          </div>
+        ) : (
+          <div className={styles.field}>
+            <Label>Select Bottles</Label>
+            {Array.from({ length: duckSlotCount }, (_, i) => (
+              <div key={i} className={styles.duckSlotRow}>
+                <Select
+                  value={multiBottles[i]}
+                  onChange={e => handleMultiSelect(i, e.target.value)}
+                >
+                  <option value="">— Bottle {i + 1} —</option>
+                  {available.map(b => (
+                    <option key={b.id} value={b.bottle}>{bottleLabel(b)} (qty: {b.quantity})</option>
+                  ))}
+                </Select>
+                {duckSlotCount > 1 && (
+                  <button className={styles.removeSlotBtn} onClick={() => removeDuckSlot(i)}>✕</button>
+                )}
+              </div>
+            ))}
+            {duckSlotCount < 4 && (
+              <button className={styles.addSlotBtn} onClick={() => setDuckSlotCount(c => c + 1)}>
+                + Add Bottle
+              </button>
+            )}
           </div>
         )}
 
