@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { SectionHeader, Label, Input, Select, PrimaryBtn, CopyBtn, Toggle, Card } from './UI'
+import { SectionHeader, Label, Input, Select, PrimaryBtn, SecondaryBtn, CopyBtn, Toggle, Card } from './UI'
 import { bottleLabel } from '../lib/bottleLabel'
 import styles from './GameTab.module.css'
 
@@ -10,6 +10,9 @@ function getMidEve() {
 function getDateStr() {
   const d = new Date()
   return `${d.getMonth() + 1}/${d.getDate()}`
+}
+function modeLabel(m) {
+  return m === 'multi' ? 'Fireball Multi' : m === 'ducks' ? 'Duck Race' : 'Fireball Single'
 }
 
 export default function GameTab({ inventory, sales, onGameEnd }) {
@@ -27,7 +30,11 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   const [soldFor, setSoldFor] = useState('')
   const [copied, setCopied] = useState('')
   const [gameBottles, setGameBottles] = useState([])
+  const [activeGameId, setActiveGameId] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [editingGameId, setEditingGameId] = useState(null)
+  const [editSoldFor, setEditSoldFor] = useState('')
+  const [editSaving, setEditSaving] = useState(false)
 
   const available = inventory.filter(b => b.quantity > 0)
 
@@ -43,6 +50,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     setDuckList('')
     setSoldFor('')
     setGameBottles([])
+    setActiveGameId(null)
   }
 
   function calcPrices(bottle, two) {
@@ -133,7 +141,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     return `${date} ${time}🔥\n${bottleLine}\n\n${sipLine}\n\nSip info posted below board after live.\n\n🥩 in SE SGF any time`
   }
 
-  function startGame() {
+  async function startGame() {
     const bottles = mode === 'single'
       ? [selectedBottle]
       : multiBottles.filter(Boolean)
@@ -147,8 +155,21 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
       setTemplate(buildTemplate(bottles))
     }
 
-    setView('active')
     setSoldFor('')
+    setView('active')
+
+    // Insert pending record immediately so it appears in the list
+    const { data } = await supabase.from('sales').insert({
+      bottles,
+      mode,
+      sold_for: null,
+      date: new Date().toISOString(),
+    }).select().single()
+
+    if (data) {
+      setActiveGameId(data.id)
+      onGameEnd()
+    }
   }
 
   async function endGame() {
@@ -170,12 +191,16 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
           })
           .eq('id', bottle.id)
       }
-      await supabase.from('sales').insert({
-        bottles: gameBottles,
-        mode,
-        sold_for: amount,
-        date: new Date().toISOString(),
-      })
+      if (activeGameId) {
+        await supabase.from('sales').update({ sold_for: amount }).eq('id', activeGameId)
+      } else {
+        await supabase.from('sales').insert({
+          bottles: gameBottles,
+          mode,
+          sold_for: amount,
+          date: new Date().toISOString(),
+        })
+      }
       onGameEnd()
       reset()
     } catch (err) {
@@ -183,6 +208,21 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     } finally {
       setSaving(false)
     }
+  }
+
+  async function saveGameEdit(id) {
+    const amount = parseFloat(editSoldFor)
+    if (isNaN(amount) || amount < 0) return
+    setEditSaving(true)
+    await supabase.from('sales').update({ sold_for: amount }).eq('id', id)
+    setEditSaving(false)
+    setEditingGameId(null)
+    onGameEnd()
+  }
+
+  async function deleteGame(id) {
+    await supabase.from('sales').delete().eq('id', id)
+    onGameEnd()
   }
 
   function copyText(text, key) {
@@ -212,17 +252,57 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
           <div className={styles.gameList}>
             {sales.map(s => (
               <div key={s.id} className={styles.gameCard}>
-                <div className={styles.gameCardMain}>
+                {editingGameId === s.id ? (
                   <div>
-                    <div className={styles.gameBottles}>
+                    <div className={styles.gameBottles} style={{ marginBottom: 10 }}>
                       {Array.isArray(s.bottles) ? s.bottles.join(' + ') : s.bottles}
                     </div>
-                    <div className={styles.gameMeta}>
-                      {new Date(s.date).toLocaleDateString()} · {s.mode === 'multi' ? 'Fireball Multi' : s.mode === 'ducks' ? 'Duck Race' : 'Fireball Single'}
+                    <div className={styles.gameEditRow}>
+                      <div style={{ position: 'relative', flex: 1 }}>
+                        <span className={styles.dollarSign}>$</span>
+                        <Input
+                          type="number"
+                          value={editSoldFor}
+                          onChange={e => setEditSoldFor(e.target.value)}
+                          placeholder="0"
+                          style={{ paddingLeft: 24 }}
+                          autoFocus
+                        />
+                      </div>
+                      <PrimaryBtn onClick={() => saveGameEdit(s.id)} disabled={editSoldFor === '' || editSaving}>
+                        {editSaving ? '...' : '✓'}
+                      </PrimaryBtn>
+                      <SecondaryBtn onClick={() => setEditingGameId(null)}>✕</SecondaryBtn>
                     </div>
                   </div>
-                  <div className={styles.gameAmount}>${s.sold_for.toLocaleString()}</div>
-                </div>
+                ) : (
+                  <div className={styles.gameCardMain}>
+                    <div className={styles.gameCardInfo}>
+                      <div className={styles.gameBottles}>
+                        {Array.isArray(s.bottles) ? s.bottles.join(' + ') : s.bottles}
+                      </div>
+                      <div className={styles.gameMeta}>
+                        {new Date(s.date).toLocaleDateString()} · {modeLabel(s.mode)}
+                      </div>
+                    </div>
+                    <div className={styles.gameCardRight}>
+                      {s.sold_for != null
+                        ? <div className={styles.gameAmount}>${s.sold_for.toLocaleString()}</div>
+                        : <div className={styles.gameActiveBadge}>Active</div>
+                      }
+                      <div className={styles.gameActions}>
+                        <button
+                          className={styles.gameActionBtn}
+                          onClick={() => { setEditingGameId(s.id); setEditSoldFor(s.sold_for ?? '') }}
+                        >✏</button>
+                        <button
+                          className={styles.gameActionBtn}
+                          onClick={() => deleteGame(s.id)}
+                        >🗑</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

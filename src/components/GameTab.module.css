@@ -32,6 +32,59 @@
   gap: 12px;
 }
 
+.gameCardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.gameCardRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.gameActions {
+  display: flex;
+  gap: 6px;
+}
+
+.gameActionBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--cream-dim);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.gameActionBtn:hover {
+  border-color: var(--border-hot);
+  color: var(--cream);
+}
+
+.gameActiveBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent);
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gameEditRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .gameBottles {
   font-size: 0.95rem;
   font-weight: 600;
