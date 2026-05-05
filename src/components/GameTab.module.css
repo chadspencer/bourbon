@@ -1,14 +1,68 @@
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--cream-dim);
+  font-size: 0.9rem;
+  margin-top: 48px;
+}
+
+.gameList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gameCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.gameCardMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.gameBottles {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 3px;
+}
+
+.gameMeta {
+  font-size: 0.75rem;
+  color: var(--cream-dim);
+}
+
+.gameAmount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--amber);
+  white-space: nowrap;
+}
+
+/* Mode select grid */
 .modeGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 4px;
 }
 
 .modeCard {
-  background: linear-gradient(160deg, var(--bg-raised), var(--bg-card));
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 24px 16px;
   cursor: pointer;
   text-align: center;
@@ -21,20 +75,24 @@
   transform: translateY(-2px);
 }
 
+.modeCardWide {
+  grid-column: 1 / -1;
+}
+
 .modeIcon { font-size: 2rem; margin-bottom: 8px; }
 .modeLabel {
-  font-family: var(--font-display);
   font-size: 1rem;
   color: var(--amber);
   font-weight: 700;
 }
 .modeSub { font-size: 0.75rem; color: var(--cream-dim); margin-top: 3px; }
 
+/* Back row */
 .backRow {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .backBtn {
@@ -49,6 +107,7 @@
 
 .backBtn:hover { color: var(--cream); }
 
+/* Setup fields */
 .field {
   margin-bottom: 14px;
 }
@@ -61,7 +120,7 @@
   padding: 10px 14px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .priceRow {
@@ -69,6 +128,15 @@
   gap: 12px;
 }
 
+/* Ducks */
+.ducksRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+/* Active game */
 .activeHeader {
   display: flex;
   justify-content: space-between;
@@ -99,7 +167,7 @@
 .pre {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 12px;
   color: var(--cream);
   font-family: 'Courier New', monospace;

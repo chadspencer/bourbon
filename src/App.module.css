@@ -5,53 +5,71 @@
 }
 
 .header {
-  background: linear-gradient(180deg, #160c04 0%, #0f0705 100%);
+  background: var(--bg-card);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(8px);
 }
 
 .headerInner {
   max-width: 520px;
   margin: 0 auto;
-  padding: 14px 16px 0;
-}
-
-.logo {
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 12px;
 }
 
 .logoFlame {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   line-height: 1;
 }
 
 .logoTitle {
   font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 900;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: var(--amber);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   line-height: 1.1;
 }
 
 .logoSub {
   font-size: 0.65rem;
   color: var(--cream-dim);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-top: 1px;
+  margin-top: 2px;
+  font-weight: 500;
 }
 
-.tabs {
-  display: flex;
+.main {
+  flex: 1;
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 20px 16px calc(var(--tab-bar-height) + 16px);
+}
+
+/* Bottom Tab Bar */
+.tabBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-card);
   border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.tabBarInner {
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
 }
 
 .tab {
@@ -59,15 +77,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 4px;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 4px 12px;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
   color: var(--cream-dim);
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  font-family: var(--font-body);
+  transition: color 0.15s;
 }
 
 .tab:hover {
@@ -76,24 +93,18 @@
 
 .tabActive {
   color: var(--amber);
-  border-bottom-color: var(--amber);
 }
 
 .tabIcon {
-  font-size: 1rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .tabName {
   font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.main {
-  flex: 1;
-  max-width: 520px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 20px 16px 40px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }

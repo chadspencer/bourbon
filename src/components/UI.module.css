@@ -1,10 +1,9 @@
 .sectionHeader {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  color: var(--amber);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: var(--cream);
+  letter-spacing: 0.01em;
   margin-bottom: 14px;
 }
 
@@ -12,18 +11,18 @@
   font-size: 0.7rem;
   color: var(--cream-dim);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   margin-bottom: 6px;
-  font-family: var(--font-body);
+  font-weight: 600;
 }
 
 .input {
   width: 100%;
-  background: var(--bg);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   color: var(--cream);
-  padding: 10px 12px;
-  border-radius: 6px;
+  padding: 11px 14px;
+  border-radius: 10px;
   font-size: 0.95rem;
   transition: border-color 0.15s;
   outline: none;
@@ -33,13 +32,17 @@
   border-color: var(--border-hot);
 }
 
+.input::placeholder {
+  color: var(--cream-dim);
+}
+
 .select {
   width: 100%;
-  background: var(--bg);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   color: var(--cream);
-  padding: 10px 12px;
-  border-radius: 6px;
+  padding: 11px 14px;
+  border-radius: 10px;
   font-size: 0.95rem;
   appearance: none;
   cursor: pointer;
@@ -52,14 +55,14 @@
 }
 
 .primaryBtn {
-  background: linear-gradient(135deg, #7a3a10, #9a4a18);
+  background: var(--amber);
   border: none;
-  color: var(--cream);
-  padding: 11px 20px;
-  border-radius: 6px;
+  color: #000;
+  padding: 13px 20px;
+  border-radius: 10px;
   font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   transition: opacity 0.15s, transform 0.1s;
 }
 
@@ -73,17 +76,18 @@
 }
 
 .primaryBtn:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .secondaryBtn {
-  background: var(--bg-card);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   color: var(--cream-dim);
-  padding: 10px 16px;
-  border-radius: 6px;
+  padding: 11px 16px;
+  border-radius: 10px;
   font-size: 0.9rem;
+  font-weight: 500;
   transition: border-color 0.15s, color 0.15s;
 }
 
@@ -93,12 +97,13 @@
 }
 
 .copyBtn {
-  background: var(--bg);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   color: var(--cream-dim);
-  padding: 4px 12px;
-  border-radius: 4px;
+  padding: 5px 12px;
+  border-radius: 8px;
   font-size: 0.75rem;
+  font-weight: 500;
   transition: all 0.15s;
   white-space: nowrap;
 }
@@ -106,15 +111,15 @@
 .copyBtnCopied {
   border-color: var(--green);
   color: var(--green);
-  background: rgba(74, 138, 58, 0.08);
+  background: rgba(42, 138, 74, 0.08);
 }
 
 .toggle {
-  width: 46px;
-  height: 26px;
+  width: 48px;
+  height: 28px;
   background: var(--bg-raised);
   border: 1px solid var(--border);
-  border-radius: 13px;
+  border-radius: 14px;
   position: relative;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
@@ -122,14 +127,14 @@
 }
 
 .toggleOn {
-  background: rgba(122, 58, 16, 0.4);
+  background: rgba(232, 160, 32, 0.25);
   border-color: var(--border-hot);
 }
 
 .toggleThumb {
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 4px;
+  left: 4px;
   width: 18px;
   height: 18px;
   background: var(--cream-dim);
@@ -138,49 +143,50 @@
 }
 
 .toggleOn .toggleThumb {
-  left: 23px;
+  left: 24px;
   background: var(--amber);
 }
 
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 16px;
   margin-bottom: 10px;
 }
 
 .statPill {
   flex: 1;
-  background: var(--bg-card);
+  background: var(--bg-raised);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px;
   text-align: center;
 }
 
 .statLabel {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   color: var(--cream-dim);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .statValue {
-  font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 700;
+  color: var(--cream);
 }
 
 .spinner {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border: 2px solid var(--border);
   border-top-color: var(--amber);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
-  margin: 40px auto;
+  margin: 60px auto;
 }
 
 @keyframes spin {

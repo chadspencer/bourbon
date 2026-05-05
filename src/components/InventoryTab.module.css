@@ -10,7 +10,7 @@
   border: 1px solid var(--border);
   color: var(--cream-dim);
   padding: 6px 12px;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 0.75rem;
   font-family: var(--font-body);
   cursor: pointer;
@@ -32,26 +32,112 @@
   margin-bottom: 8px;
 }
 
-.bottleRow {
+/* Group card header */
+.groupHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--cream);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
 }
 
 .bottleName {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  color: var(--cream);
+  font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 3px;
+  color: var(--cream);
+  margin-bottom: 2px;
 }
 
 .bottleMeta {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--cream-dim);
 }
 
-.editBtns {
+.chevron {
+  font-size: 1.3rem;
+  color: var(--cream-dim);
+  transform: rotate(0deg);
+  transition: transform 0.2s;
+  line-height: 1;
+  margin-left: 8px;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+/* Expanded bottle rows */
+.bottleRows {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.bottleRow {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bottleRow:last-of-type {
+  border-bottom: none;
+}
+
+.rowInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.rowInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rowQualifier {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--amber);
+}
+
+.noQualifier {
+  color: var(--cream-dim);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.rowMeta {
+  font-size: 0.75rem;
+  color: var(--cream-dim);
+}
+
+.rowDepleted {
+  opacity: 0.45;
+}
+
+/* Inline edit row */
+.editRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editNumbers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.editActions {
   display: flex;
   gap: 6px;
 }
@@ -60,7 +146,7 @@
   background: none;
   border: 1px solid var(--border);
   padding: 4px 9px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.85rem;
   cursor: pointer;
   font-family: var(--font-body);
@@ -71,17 +157,44 @@
   border-color: var(--border-hot);
 }
 
-.editForm {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
+.addRowBtn {
+  background: none;
+  border: none;
+  color: var(--cream-dim);
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: 8px 0 2px;
+  text-align: left;
+  transition: color 0.15s;
+}
+
+.addRowBtn:hover {
+  color: var(--amber);
 }
 
 .depleted {
   opacity: 0.5;
+}
+
+.nameSelect {
+  width: 100%;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--cream);
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  display: block;
+}
+
+.nameSelect:focus {
+  border-color: var(--border-hot);
 }
 
 .newFormRow {
