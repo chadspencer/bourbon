@@ -14,11 +14,23 @@ function getDateStr() {
 function modeLabel(m) {
   return m === 'multi' ? 'Fireball Multi' : m === 'ducks' ? 'Duck Race' : 'Fireball Single'
 }
+function formatBottles(bottles) {
+  if (!Array.isArray(bottles)) return bottles
+  const counts = {}
+  bottles.forEach(b => { counts[b] = (counts[b] || 0) + 1 })
+  return Object.entries(counts)
+    .map(([name, count]) => count > 1 ? `${count}× ${name}` : name)
+    .join(' + ')
+}
+function toDateInput(iso) {
+  return iso ? new Date(iso).toISOString().slice(0, 10) : ''
+}
 
 export default function GameTab({ inventory, sales, onGameEnd }) {
   const [view, setView] = useState('list') // list | select | setup | active
   const [mode, setMode] = useState(null)   // 'single' | 'multi' | 'ducks'
   const [selectedBottle, setSelectedBottle] = useState('')
+  const [singleQty, setSingleQty] = useState(1)
   const [multiBottles, setMultiBottles] = useState(['', '', '', ''])
   const [twoPrice, setTwoPrice] = useState(false)
   const [price1, setPrice1] = useState('')
@@ -34,6 +46,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   const [saving, setSaving] = useState(false)
   const [editingGameId, setEditingGameId] = useState(null)
   const [editSoldFor, setEditSoldFor] = useState('')
+  const [editDate, setEditDate] = useState('')
   const [editSaving, setEditSaving] = useState(false)
 
   const available = inventory.filter(b => b.quantity > 0)
@@ -42,6 +55,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     setView('list')
     setMode(null)
     setSelectedBottle('')
+    setSingleQty(1)
     setMultiBottles(['', '', '', ''])
     setTwoPrice(false)
     setPrice1('')
@@ -53,10 +67,10 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     setActiveGameId(null)
   }
 
-  function calcPrices(bottle, two) {
+  function calcPrices(bottle, two, qty = 1) {
     const b = inventory.find(x => x.bottle === bottle)
     if (!b) return { p1: '', p2: '' }
-    const base = Math.round(b.value / 10)
+    const base = Math.round(b.value * qty / 10)
     return two
       ? { p1: String(Math.round(base * 1.3)), p2: String(base) }
       : { p1: String(base), p2: '' }
@@ -75,6 +89,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   function handleModeSelect(m) {
     setMode(m)
     setSelectedBottle('')
+    setSingleQty(1)
     setMultiBottles(['', '', '', ''])
     setPrice1('')
     setPrice2('')
@@ -94,9 +109,18 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
 
   function handleBottleSelect(bottle) {
     setSelectedBottle(bottle)
-    const { p1, p2 } = calcPrices(bottle, twoPrice)
+    const { p1, p2 } = calcPrices(bottle, twoPrice, singleQty)
     setPrice1(p1)
     setPrice2(p2)
+  }
+
+  function handleSingleQtyChange(qty) {
+    setSingleQty(qty)
+    if (selectedBottle) {
+      const { p1, p2 } = calcPrices(selectedBottle, twoPrice, qty)
+      setPrice1(p1)
+      setPrice2(p2)
+    }
   }
 
   function handleMultiSelect(idx, val) {
@@ -111,7 +135,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   function handleTwoPriceToggle(val) {
     setTwoPrice(val)
     if (mode === 'single' && selectedBottle) {
-      const { p1, p2 } = calcPrices(selectedBottle, val)
+      const { p1, p2 } = calcPrices(selectedBottle, val, singleQty)
       setPrice1(p1); setPrice2(p2)
     } else if (mode === 'multi') {
       const { p1, p2 } = calcMultiPrices(multiBottles, val)
@@ -125,7 +149,8 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     let bottleLine = ''
     if (mode === 'single') {
       const b = inventory.find(x => x.bottle === selectedBottle)
-      bottleLine = b ? bottleLabel(b) : selectedBottle
+      const label = b ? bottleLabel(b) : selectedBottle
+      bottleLine = singleQty > 1 ? `${singleQty}× ${label}` : label
     } else {
       bottleLine = bottles
         .map(name => {
@@ -143,7 +168,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
 
   async function startGame() {
     const bottles = mode === 'single'
-      ? [selectedBottle]
+      ? Array(singleQty).fill(selectedBottle)
       : multiBottles.filter(Boolean)
 
     const count = mode === 'ducks' ? duckCount : 10
@@ -158,7 +183,6 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     setSoldFor('')
     setView('active')
 
-    // Insert pending record immediately so it appears in the list
     const { data } = await supabase.from('sales').insert({
       bottles,
       mode,
@@ -177,9 +201,11 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     if (!amount || amount <= 0) return
     setSaving(true)
     try {
+      const usedIds = new Set()
       for (const bottleName of gameBottles) {
-        const bottle = inventory.find(b => b.bottle === bottleName)
+        const bottle = inventory.find(b => b.bottle === bottleName && !usedIds.has(b.id) && b.quantity > 0)
         if (!bottle) continue
+        usedIds.add(bottle.id)
         const newQty = Math.max(0, bottle.quantity - 1)
         await supabase
           .from('inventory')
@@ -210,11 +236,19 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     }
   }
 
+  function startEditGame(s) {
+    setEditingGameId(s.id)
+    setEditSoldFor(s.sold_for ?? '')
+    setEditDate(toDateInput(s.date))
+  }
+
   async function saveGameEdit(id) {
     const amount = parseFloat(editSoldFor)
     if (isNaN(amount) || amount < 0) return
     setEditSaving(true)
-    await supabase.from('sales').update({ sold_for: amount }).eq('id', id)
+    const updates = { sold_for: amount }
+    if (editDate) updates.date = new Date(editDate + 'T12:00:00').toISOString()
+    await supabase.from('sales').update(updates).eq('id', id)
     setEditSaving(false)
     setEditingGameId(null)
     onGameEnd()
@@ -250,61 +284,72 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
           <div className={styles.empty}>No games yet. Create one!</div>
         ) : (
           <div className={styles.gameList}>
-            {sales.map(s => (
-              <div key={s.id} className={styles.gameCard}>
-                {editingGameId === s.id ? (
-                  <div>
-                    <div className={styles.gameBottles} style={{ marginBottom: 10 }}>
-                      {Array.isArray(s.bottles) ? s.bottles.join(' + ') : s.bottles}
-                    </div>
-                    <div className={styles.gameEditRow}>
-                      <div style={{ position: 'relative', flex: 1 }}>
-                        <span className={styles.dollarSign}>$</span>
+            {sales.map(s => {
+              const isActive = s.sold_for == null
+              return (
+                <div key={s.id} className={styles.gameCard}>
+                  {editingGameId === s.id ? (
+                    <div>
+                      <div className={styles.gameBottles} style={{ marginBottom: 10 }}>
+                        {formatBottles(s.bottles)}
+                      </div>
+                      <div className={styles.gameEditRow}>
                         <Input
-                          type="number"
-                          value={editSoldFor}
-                          onChange={e => setEditSoldFor(e.target.value)}
-                          placeholder="0"
-                          style={{ paddingLeft: 24 }}
-                          autoFocus
+                          type="date"
+                          value={editDate}
+                          onChange={e => setEditDate(e.target.value)}
+                          style={{ flex: 1 }}
                         />
-                      </div>
-                      <PrimaryBtn onClick={() => saveGameEdit(s.id)} disabled={editSoldFor === '' || editSaving}>
-                        {editSaving ? '...' : '✓'}
-                      </PrimaryBtn>
-                      <SecondaryBtn onClick={() => setEditingGameId(null)}>✕</SecondaryBtn>
-                    </div>
-                  </div>
-                ) : (
-                  <div className={styles.gameCardMain}>
-                    <div className={styles.gameCardInfo}>
-                      <div className={styles.gameBottles}>
-                        {Array.isArray(s.bottles) ? s.bottles.join(' + ') : s.bottles}
-                      </div>
-                      <div className={styles.gameMeta}>
-                        {new Date(s.date).toLocaleDateString()} · {modeLabel(s.mode)}
-                      </div>
-                    </div>
-                    <div className={styles.gameCardRight}>
-                      {s.sold_for != null
-                        ? <div className={styles.gameAmount}>${s.sold_for.toLocaleString()}</div>
-                        : <div className={styles.gameActiveBadge}>Active</div>
-                      }
-                      <div className={styles.gameActions}>
-                        <button
-                          className={styles.gameActionBtn}
-                          onClick={() => { setEditingGameId(s.id); setEditSoldFor(s.sold_for ?? '') }}
-                        >✏</button>
-                        <button
-                          className={styles.gameActionBtn}
-                          onClick={() => deleteGame(s.id)}
-                        >🗑</button>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                          <span className={styles.dollarSign}>$</span>
+                          <Input
+                            type="number"
+                            value={editSoldFor}
+                            onChange={e => setEditSoldFor(e.target.value)}
+                            placeholder="0"
+                            style={{ paddingLeft: 24 }}
+                            autoFocus
+                          />
+                        </div>
+                        <PrimaryBtn onClick={() => saveGameEdit(s.id)} disabled={editSoldFor === '' || editSaving}>
+                          {editSaving ? '...' : '✓'}
+                        </PrimaryBtn>
+                        <SecondaryBtn onClick={() => setEditingGameId(null)}>✕</SecondaryBtn>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  ) : (
+                    <div className={styles.gameCardMain}>
+                      <div className={styles.gameCardInfo}>
+                        <div className={styles.gameBottles}>
+                          {formatBottles(s.bottles)}
+                        </div>
+                        <div className={styles.gameMeta}>
+                          {new Date(s.date).toLocaleDateString()} · {modeLabel(s.mode)}
+                        </div>
+                      </div>
+                      <div className={styles.gameCardRight}>
+                        <div className={styles.gameCardAmountRow}>
+                          {!isActive && (
+                            <span className={styles.gameAmount}>${s.sold_for.toLocaleString()}</span>
+                          )}
+                          <span className={isActive ? styles.gameActiveBadge : styles.gameCompleteBadge}>
+                            {isActive ? 'Active' : 'Complete'}
+                          </span>
+                        </div>
+                        <div className={styles.gameActions}>
+                          {!isActive && (
+                            <button className={styles.gameActionBtn} onClick={() => startEditGame(s)}>✏</button>
+                          )}
+                          {isActive && (
+                            <button className={styles.gameActionBtn} onClick={() => deleteGame(s.id)}>🗑</button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
@@ -320,7 +365,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
           <SectionHeader style={{ margin: 0 }}>New Game</SectionHeader>
         </div>
         <div className={styles.modeGrid}>
-          <ModeCard onClick={() => handleModeSelect('single')} icon="🔥" label="Fireball Single" sub="1 bottle · 10 spots" />
+          <ModeCard onClick={() => handleModeSelect('single')} icon="🔥" label="Fireball Single" sub="1+ bottles · 10 spots" />
           <ModeCard onClick={() => handleModeSelect('multi')} icon="🔥" label="Fireball Multi" sub="4 bottles · 10 spots" />
           <ModeCard onClick={() => handleModeSelect('ducks')} icon="🦆" label="Duck Race" sub="multi bottle · custom spots" wide />
         </div>
@@ -342,12 +387,25 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
         {mode === 'single' ? (
           <div className={styles.field}>
             <Label>Select Bottle</Label>
-            <Select value={selectedBottle} onChange={e => handleBottleSelect(e.target.value)}>
-              <option value="">— Choose —</option>
-              {available.map(b => (
-                <option key={b.id} value={b.bottle}>{bottleLabel(b)} (qty: {b.quantity})</option>
-              ))}
-            </Select>
+            <div className={styles.singleBottleRow}>
+              <Select value={selectedBottle} onChange={e => handleBottleSelect(e.target.value)} style={{ flex: 1 }}>
+                <option value="">— Choose —</option>
+                {available.map(b => (
+                  <option key={b.id} value={b.bottle}>{bottleLabel(b)} (qty: {b.quantity})</option>
+                ))}
+              </Select>
+              <div className={styles.qtyWrap}>
+                <Label style={{ fontSize: '0.65rem', marginBottom: 4 }}>Qty</Label>
+                <Input
+                  type="number"
+                  value={singleQty}
+                  min={1}
+                  max={20}
+                  onChange={e => handleSingleQtyChange(Math.max(1, parseInt(e.target.value) || 1))}
+                  style={{ width: 64, textAlign: 'center' }}
+                />
+              </div>
+            </div>
           </div>
         ) : mode === 'multi' ? (
           <div className={styles.field}>
@@ -444,7 +502,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
         <SectionHeader style={{ margin: 0 }}>
           {isDucks ? '🦆 Race Active' : '🔥 Game Active'}
         </SectionHeader>
-        <span className={styles.activePill}>{gameBottles.join(', ')}</span>
+        <span className={styles.activePill}>{formatBottles(gameBottles)}</span>
       </div>
 
       {!isDucks && (
