@@ -1,0 +1,126 @@
+.modeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.modeCard {
+  background: linear-gradient(160deg, var(--bg-raised), var(--bg-card));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 16px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, transform 0.1s;
+  color: var(--cream);
+}
+
+.modeCard:hover {
+  border-color: var(--border-hot);
+  transform: translateY(-2px);
+}
+
+.modeIcon { font-size: 2rem; margin-bottom: 8px; }
+.modeLabel {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--amber);
+  font-weight: 700;
+}
+.modeSub { font-size: 0.75rem; color: var(--cream-dim); margin-top: 3px; }
+
+.backRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--cream-dim);
+  font-size: 0.85rem;
+  padding: 0;
+  font-family: var(--font-body);
+  transition: color 0.15s;
+}
+
+.backBtn:hover { color: var(--cream); }
+
+.field {
+  margin-bottom: 14px;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.priceRow {
+  display: flex;
+  gap: 12px;
+}
+
+.activeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.activePill {
+  font-size: 0.7rem;
+  color: var(--cream-dim);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blockHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pre {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  color: var(--cream);
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.endRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.dollarSign {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cream-dim);
+  pointer-events: none;
+}

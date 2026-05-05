@@ -1,0 +1,96 @@
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.exportBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--cream-dim);
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.exportBtn:hover {
+  border-color: var(--border-hot);
+  color: var(--cream);
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.list {
+  margin-bottom: 8px;
+}
+
+.bottleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bottleName {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--cream);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.bottleMeta {
+  font-size: 0.78rem;
+  color: var(--cream-dim);
+}
+
+.editBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.iconBtn {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 4px 9px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color 0.15s;
+}
+
+.iconBtn:hover {
+  border-color: var(--border-hot);
+}
+
+.editForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.depleted {
+  opacity: 0.5;
+}
+
+.newFormRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.addBtnRow {
+  display: flex;
+  gap: 8px;
+}

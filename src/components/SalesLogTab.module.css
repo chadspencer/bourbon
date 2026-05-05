@@ -1,0 +1,60 @@
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.totalBadge {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.empty {
+  text-align: center;
+  color: var(--cream-dim);
+  padding: 60px 0;
+  font-size: 0.95rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.saleCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  animation: fadeUp 0.3s ease both;
+}
+
+.saleMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saleBottles {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--cream);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.saleMeta {
+  font-size: 0.75rem;
+  color: var(--cream-dim);
+}
+
+.saleAmount {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--green);
+}
