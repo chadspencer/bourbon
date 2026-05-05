@@ -186,13 +186,13 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
     const { data } = await supabase.from('sales').insert({
       bottles,
       mode,
-      sold_for: null,
+      sold_for: -1,
       date: new Date().toISOString(),
     }).select().single()
 
     if (data) {
       setActiveGameId(data.id)
-      onGameEnd()
+      onGameEnd(true)
     }
   }
 
@@ -238,7 +238,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
 
   function startEditGame(s) {
     setEditingGameId(s.id)
-    setEditSoldFor(s.sold_for ?? '')
+    setEditSoldFor(s.sold_for < 0 ? '' : s.sold_for)
     setEditDate(toDateInput(s.date))
   }
 
@@ -285,7 +285,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
         ) : (
           <div className={styles.gameList}>
             {sales.map(s => {
-              const isActive = s.sold_for == null
+              const isActive = s.sold_for < 0
               return (
                 <div key={s.id} className={styles.gameCard}>
                   {editingGameId === s.id ? (
@@ -330,7 +330,7 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
                       <div className={styles.gameCardRight}>
                         <div className={styles.gameCardAmountRow}>
                           {!isActive && (
-                            <span className={styles.gameAmount}>${s.sold_for.toLocaleString()}</span>
+                            <span className={styles.gameAmount}>${Number(s.sold_for).toLocaleString()}</span>
                           )}
                           <span className={isActive ? styles.gameActiveBadge : styles.gameCompleteBadge}>
                             {isActive ? 'Active' : 'Complete'}
@@ -498,11 +498,11 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
   const isDucks = mode === 'ducks'
   return (
     <div className="fade-up">
-      <div className={styles.activeHeader}>
+      <div className={styles.backRow}>
+        <button onClick={reset} className={styles.backBtn}>← Games</button>
         <SectionHeader style={{ margin: 0 }}>
           {isDucks ? '🦆 Race Active' : '🔥 Game Active'}
         </SectionHeader>
-        <span className={styles.activePill}>{formatBottles(gameBottles)}</span>
       </div>
 
       {!isDucks && (
@@ -515,13 +515,15 @@ export default function GameTab({ inventory, sales, onGameEnd }) {
         </Card>
       )}
 
-      <Card style={{ marginBottom: 20 }}>
-        <div className={styles.blockHeader}>
-          <Label style={{ margin: 0 }}>🦆 {isDucks ? 'Duck List' : 'Spots'}</Label>
-          <CopyBtn onClick={() => copyText(duckList, 'duck')} copied={copied === 'duck'} />
-        </div>
-        <pre className={styles.pre} style={{ maxHeight: 220, overflowY: 'auto' }}>{duckList}</pre>
-      </Card>
+      {isDucks && (
+        <Card style={{ marginBottom: 20 }}>
+          <div className={styles.blockHeader}>
+            <Label style={{ margin: 0 }}>🦆 Duck List</Label>
+            <CopyBtn onClick={() => copyText(duckList, 'duck')} copied={copied === 'duck'} />
+          </div>
+          <pre className={styles.pre} style={{ maxHeight: 220, overflowY: 'auto' }}>{duckList}</pre>
+        </Card>
+      )}
 
       <Card style={{ borderColor: 'var(--border-hot)' }}>
         <Label>{isDucks ? 'Race ran for...' : 'Bottle ran for...'}</Label>

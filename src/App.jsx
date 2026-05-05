@@ -70,15 +70,15 @@ export default function App() {
   const [sales, setSales] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true)
+  const fetchAll = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     const [{ data: inv }, { data: sal }] = await Promise.all([
       supabase.from('inventory').select('*').order('bottle'),
       supabase.from('sales').select('*').order('date', { ascending: false }),
     ])
     setInventory(inv || [])
     setSales(sal || [])
-    setLoading(false)
+    if (!silent) setLoading(false)
   }, [])
 
   useEffect(() => { fetchAll() }, [fetchAll])
@@ -86,13 +86,13 @@ export default function App() {
   return (
     <div className={styles.app}>
       <header className={styles.header}>
-        <div className={styles.headerInner}>
+        <button className={styles.headerInner} onClick={() => navigate('game')}>
           <span className={styles.logoFlame}>🔥</span>
           <div>
             <div className={styles.logoTitle}>Fireball Board</div>
             <div className={styles.logoSub}>Bourbon Game Manager</div>
           </div>
-        </div>
+        </button>
       </header>
 
       <main className={styles.main}>
